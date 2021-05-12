@@ -1,3 +1,3 @@
-# freelancing-sc
+# basketcoin-sc
 
-List of smart contracts that I work upon as a freelancer
+List of smart contracts for Basketcoin
