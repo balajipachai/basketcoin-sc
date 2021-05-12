@@ -1,9 +1,9 @@
-const HDWalletProvider = require("truffle-hdwallet-provider");
+const HDWalletProvider = require("@truffle/hdwallet-provider");
 const MNEMONIC = 'WALLET MNEMONIC';
 
 module.exports = {
 
-  plugins: ["truffle-security"],
+    plugins: ["truffle-security", "solidity-coverage"],
 
     // See <http://truffleframework.com/docs/advanced/configuration>
     // to customize your Truffle configuration!
@@ -15,10 +15,10 @@ module.exports = {
         development: {
             name: "development",
             protocol: "http",
-            host: "localhost",
-            port: 8545,
-            network_id: "7777",
-            gas: 8000000,
+            host: "127.0.0.1",
+            port: 7545,
+            network_id: "5777",
+            gas: 6721975,
             gasPrice: 1,
         },
         mainnet: {
@@ -75,7 +75,7 @@ module.exports = {
     },
     compilers: {
         solc: {
-            version: "0.6.1",
+            version: "0.8.4",
             optimizer: {
                 enabled: true,
                 runs: 200
