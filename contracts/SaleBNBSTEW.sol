@@ -123,11 +123,12 @@ contract SaleBNBSTEW is Ownable {
      * - STEW token transfer from `this contract` to `msg.sender` must succeed.
      * - BNB token transfer from `msg.sender` to `this contract` must succeed.
      */
-    function buySTEWs(uint256 noOfSTEWs) public {
+    function buySTEWs(uint256 noOfBNBs) public {
         require(!isSalePaused, "Cannot buy, sale is paused");
         require(!hasSaleEnded, "Sale ended");
         require(hasSaleStarted, "Wait for the sale to start");
-        uint256 numSTEWsCallerGets = soldStewTokens + noOfSTEWs;
+        uint256 stewsForBNB = getSTEWsForBNB(noOfBNBs, msg.sender);
+        uint256 numSTEWsCallerGets = soldStewTokens + stewsForBNB;
         // THIS ADDRESES THE SCENARIO OF SAY, STEW_TOKENS_FOR_SALE = 147000,
         // soldStewTokens = 146900, call to buySTEWs(150), here the caller gets,
         // 100 STEWs out of 150 STEWs
@@ -136,36 +137,19 @@ contract SaleBNBSTEW is Ownable {
             // It implies that all STEWs are sold out, thus set hasSaleEnded to true
             hasSaleEnded = true;
         } else {
-            numSTEWsCallerGets = numSTEWsCallerGets;
+            numSTEWsCallerGets = stewsForBNB;
         }
-        uint256 requireBNBs;
-        if (isPreSale) {
-            // Only white listed address can buy
-            require(numSTEWsCallerGets >= 15, "1 BNB minimum criteria fails");
-            requireBNBs = numSTEWsCallerGets / STEW_TOKENS_PRE_SALE_PER_BNB;
-            require(
-                BNBContract.balanceOf(msg.sender) >= requireBNBs,
-                "Insufficient BNB balance"
-            );
-            require(
-                isAddressWhiteListed[msg.sender],
-                "Caller is not white listed"
-            );
-        } else {
-            // Any other address can buy
-            requireBNBs = numSTEWsCallerGets / STEW_TOKENS_PUBLIC_SALE_PER_BNB;
-            require(
-                BNBContract.balanceOf(msg.sender) >= requireBNBs,
-                "Insufficient BNB balance"
-            );
-        }
+        require(
+            BNBContract.balanceOf(msg.sender) >= noOfBNBs,
+            "Insufficient BNB balance"
+        );
         soldStewTokens += numSTEWsCallerGets;
         require(
             STEWContract.transfer(msg.sender, numSTEWsCallerGets),
             "STEW transfer failed"
         );
         require(
-            BNBContract.transferFrom(msg.sender, address(this), requireBNBs),
+            BNBContract.transferFrom(msg.sender, address(this), noOfBNBs),
             "BNB transfer failed"
         );
     }
@@ -198,6 +182,25 @@ contract SaleBNBSTEW is Ownable {
             STEWContract.transfer(msg.sender, contractSTEWBal),
             "transferSTEWs failed"
         );
+    }
+
+    /**
+     * @dev Returns the number of STEWs a user can get
+     *
+     * Requirements:
+     * - during presale, the caller must be a white listed address
+     */
+    function getSTEWsForBNB(uint256 noOfBNBs, address caller)
+        internal
+        view
+        returns (uint256)
+    {
+        if (isPreSale) {
+            require(noOfBNBs >= 1, "1 BNB minimum criteria fails");
+            require(isAddressWhiteListed[caller], "Caller is not white listed");
+            return noOfBNBs * STEW_TOKENS_PRE_SALE_PER_BNB;
+        }
+        return noOfBNBs * STEW_TOKENS_PUBLIC_SALE_PER_BNB;
     }
 
     /**
