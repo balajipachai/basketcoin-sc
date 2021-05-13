@@ -75,7 +75,7 @@ contract STEW is ERC20, Ownable {
     }
 
     /**
-     * @dev To transfer all ethers stored in the contract to the caller
+     * @dev To transfer all BNBs stored in the contract to the caller
      *
      * Requirements:
      * - invocation can be done, only by the contract owner.

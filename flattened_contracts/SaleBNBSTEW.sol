@@ -25,9 +25,7 @@ interface IERC20 {
      *
      * Emits a {Transfer} event.
      */
-    function transfer(address recipient, uint256 amount)
-        external
-        returns (bool);
+    function transfer(address recipient, uint256 amount) external returns (bool);
 
     /**
      * @dev Returns the remaining number of tokens that `spender` will be
@@ -36,10 +34,7 @@ interface IERC20 {
      *
      * This value changes when {approve} or {transferFrom} are called.
      */
-    function allowance(address owner, address spender)
-        external
-        view
-        returns (uint256);
+    function allowance(address owner, address spender) external view returns (uint256);
 
     /**
      * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.
@@ -66,11 +61,7 @@ interface IERC20 {
      *
      * Emits a {Transfer} event.
      */
-    function transferFrom(
-        address sender,
-        address recipient,
-        uint256 amount
-    ) external returns (bool);
+    function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
 
     /**
      * @dev Emitted when `value` tokens are moved from one account (`from`) to
@@ -84,16 +75,15 @@ interface IERC20 {
      * @dev Emitted when the allowance of a `spender` for an `owner` is set by
      * a call to {approve}. `value` is the new allowance.
      */
-    event Approval(
-        address indexed owner,
-        address indexed spender,
-        uint256 value
-    );
+    event Approval(address indexed owner, address indexed spender, uint256 value);
 }
 
 // File: openzeppelin-solidity/contracts/token/ERC20/extensions/IERC20Metadata.sol
 
+// SPDX-License-Identifier: MIT
+
 pragma solidity ^0.8.0;
+
 
 /**
  * @dev Interface for the optional metadata functions from the ERC20 standard.
@@ -118,6 +108,8 @@ interface IERC20Metadata is IERC20 {
 }
 
 // File: openzeppelin-solidity/contracts/utils/Context.sol
+
+// SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.0;
 
@@ -144,7 +136,12 @@ abstract contract Context {
 
 // File: openzeppelin-solidity/contracts/token/ERC20/ERC20.sol
 
+// SPDX-License-Identifier: MIT
+
 pragma solidity ^0.8.0;
+
+
+
 
 /**
  * @dev Implementation of the {IERC20} interface.
@@ -171,9 +168,9 @@ pragma solidity ^0.8.0;
  * allowances. See {IERC20-approve}.
  */
 contract ERC20 is Context, IERC20, IERC20Metadata {
-    mapping(address => uint256) private _balances;
+    mapping (address => uint256) private _balances;
 
-    mapping(address => mapping(address => uint256)) private _allowances;
+    mapping (address => mapping (address => uint256)) private _allowances;
 
     uint256 private _totalSupply;
 
@@ -189,7 +186,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      * All two of these values are immutable: they can only be set once during
      * construction.
      */
-    constructor(string memory name_, string memory symbol_) {
+    constructor (string memory name_, string memory symbol_) {
         _name = name_;
         _symbol = symbol_;
     }
@@ -236,13 +233,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     /**
      * @dev See {IERC20-balanceOf}.
      */
-    function balanceOf(address account)
-        public
-        view
-        virtual
-        override
-        returns (uint256)
-    {
+    function balanceOf(address account) public view virtual override returns (uint256) {
         return _balances[account];
     }
 
@@ -254,12 +245,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      * - `recipient` cannot be the zero address.
      * - the caller must have a balance of at least `amount`.
      */
-    function transfer(address recipient, uint256 amount)
-        public
-        virtual
-        override
-        returns (bool)
-    {
+    function transfer(address recipient, uint256 amount) public virtual override returns (bool) {
         _transfer(_msgSender(), recipient, amount);
         return true;
     }
@@ -267,13 +253,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     /**
      * @dev See {IERC20-allowance}.
      */
-    function allowance(address owner, address spender)
-        public
-        view
-        virtual
-        override
-        returns (uint256)
-    {
+    function allowance(address owner, address spender) public view virtual override returns (uint256) {
         return _allowances[owner][spender];
     }
 
@@ -284,12 +264,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      *
      * - `spender` cannot be the zero address.
      */
-    function approve(address spender, uint256 amount)
-        public
-        virtual
-        override
-        returns (bool)
-    {
+    function approve(address spender, uint256 amount) public virtual override returns (bool) {
         _approve(_msgSender(), spender, amount);
         return true;
     }
@@ -307,18 +282,11 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      * - the caller must have allowance for ``sender``'s tokens of at least
      * `amount`.
      */
-    function transferFrom(
-        address sender,
-        address recipient,
-        uint256 amount
-    ) public virtual override returns (bool) {
+    function transferFrom(address sender, address recipient, uint256 amount) public virtual override returns (bool) {
         _transfer(sender, recipient, amount);
 
         uint256 currentAllowance = _allowances[sender][_msgSender()];
-        require(
-            currentAllowance >= amount,
-            "ERC20: transfer amount exceeds allowance"
-        );
+        require(currentAllowance >= amount, "ERC20: transfer amount exceeds allowance");
         _approve(sender, _msgSender(), currentAllowance - amount);
 
         return true;
@@ -336,16 +304,8 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      *
      * - `spender` cannot be the zero address.
      */
-    function increaseAllowance(address spender, uint256 addedValue)
-        public
-        virtual
-        returns (bool)
-    {
-        _approve(
-            _msgSender(),
-            spender,
-            _allowances[_msgSender()][spender] + addedValue
-        );
+    function increaseAllowance(address spender, uint256 addedValue) public virtual returns (bool) {
+        _approve(_msgSender(), spender, _allowances[_msgSender()][spender] + addedValue);
         return true;
     }
 
@@ -363,16 +323,9 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      * - `spender` must have allowance for the caller of at least
      * `subtractedValue`.
      */
-    function decreaseAllowance(address spender, uint256 subtractedValue)
-        public
-        virtual
-        returns (bool)
-    {
+    function decreaseAllowance(address spender, uint256 subtractedValue) public virtual returns (bool) {
         uint256 currentAllowance = _allowances[_msgSender()][spender];
-        require(
-            currentAllowance >= subtractedValue,
-            "ERC20: decreased allowance below zero"
-        );
+        require(currentAllowance >= subtractedValue, "ERC20: decreased allowance below zero");
         _approve(_msgSender(), spender, currentAllowance - subtractedValue);
 
         return true;
@@ -392,21 +345,14 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      * - `recipient` cannot be the zero address.
      * - `sender` must have a balance of at least `amount`.
      */
-    function _transfer(
-        address sender,
-        address recipient,
-        uint256 amount
-    ) internal virtual {
+    function _transfer(address sender, address recipient, uint256 amount) internal virtual {
         require(sender != address(0), "ERC20: transfer from the zero address");
         require(recipient != address(0), "ERC20: transfer to the zero address");
 
         _beforeTokenTransfer(sender, recipient, amount);
 
         uint256 senderBalance = _balances[sender];
-        require(
-            senderBalance >= amount,
-            "ERC20: transfer amount exceeds balance"
-        );
+        require(senderBalance >= amount, "ERC20: transfer amount exceeds balance");
         _balances[sender] = senderBalance - amount;
         _balances[recipient] += amount;
 
@@ -469,11 +415,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      * - `owner` cannot be the zero address.
      * - `spender` cannot be the zero address.
      */
-    function _approve(
-        address owner,
-        address spender,
-        uint256 amount
-    ) internal virtual {
+    function _approve(address owner, address spender, uint256 amount) internal virtual {
         require(owner != address(0), "ERC20: approve from the zero address");
         require(spender != address(0), "ERC20: approve to the zero address");
 
@@ -495,14 +437,12 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      *
      * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
      */
-    function _beforeTokenTransfer(
-        address from,
-        address to,
-        uint256 amount
-    ) internal virtual {}
+    function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual { }
 }
 
 // File: openzeppelin-solidity/contracts/access/Ownable.sol
+
+// SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.0;
 
@@ -521,15 +461,12 @@ pragma solidity ^0.8.0;
 abstract contract Ownable is Context {
     address private _owner;
 
-    event OwnershipTransferred(
-        address indexed previousOwner,
-        address indexed newOwner
-    );
+    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
     /**
      * @dev Initializes the contract setting the deployer as the initial owner.
      */
-    constructor() {
+    constructor () {
         address msgSender = _msgSender();
         _owner = msgSender;
         emit OwnershipTransferred(address(0), msgSender);
@@ -567,10 +504,7 @@ abstract contract Ownable is Context {
      * Can only be called by the current owner.
      */
     function transferOwnership(address newOwner) public virtual onlyOwner {
-        require(
-            newOwner != address(0),
-            "Ownable: new owner is the zero address"
-        );
+        require(newOwner != address(0), "Ownable: new owner is the zero address");
         emit OwnershipTransferred(_owner, newOwner);
         _owner = newOwner;
     }
@@ -578,7 +512,10 @@ abstract contract Ownable is Context {
 
 // File: contracts/SaleBNBSTEW.sol
 
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
+
+
 
 /// @title SaleBNBSTEW
 contract SaleBNBSTEW is Ownable {
@@ -651,6 +588,26 @@ contract SaleBNBSTEW is Ownable {
     }
 
     /**
+     * @dev Starts sale.
+     *
+     * Requirements:
+     * - invocation can be done, only by the contract owner.
+     */
+    function startSale() public onlyOwner {
+        hasSaleStarted = true;
+    }
+
+    /**
+     * @dev Ends sale.
+     *
+     * Requirements:
+     * - invocation can be done, only by the contract owner.
+     */
+    function endSale() public onlyOwner {
+        hasSaleStarted = false;
+    }
+
+    /**
      * @dev To unpause a sale after the attack risks has been addressed.
      *
      * Emits an {SaleUnPaused} event.
@@ -674,7 +631,6 @@ contract SaleBNBSTEW is Ownable {
         public
         onlyOwner
     {
-        require(!hasSaleStarted, "Can't add whitelist sale started");
         for (uint256 i = 0; i < whiteListAddresses.length; i++) {
             require(
                 whiteListAddresses[i] != address(0),
@@ -682,66 +638,51 @@ contract SaleBNBSTEW is Ownable {
             );
             isAddressWhiteListed[whiteListAddresses[i]] = true;
         }
-        hasSaleStarted = true;
     }
 
     /**
      * @dev Moves `STEW` tokens from `this contract` to `caller{msg.sender}` &
-     * `BNB` tokens from `caller{msg.sender}` to `this contract`.
-     * `requireBNBs`: Number of BNBs required to buy STEWs
+     * `BNB` from `caller{msg.sender}` to `this contract`.
      * During PreSale, trying to buy STEWs less than 15 results in a revert.
      *
      * Requirements:
      * - `isSalePaused` must be false.
      * - already sold STEW tokens + STEW tokens to buy < `STEW_TOKENS_FOR_SALE`.
-     * - BNB token balance of `msg.sender` must be greater than `requireBNBs`.
-     * - in case of pre-sale only white list address can buy STEW.
+     * - in case of pre-sale only white list addresses can buy STEW.
      * - STEW token transfer from `this contract` to `msg.sender` must succeed.
-     * - BNB token transfer from `msg.sender` to `this contract` must succeed.
+     * - BNB transfer from `msg.sender` to `this contract` must succeed.
      */
-    function buySTEWs(uint256 noOfBNBs) public {
+    function buySTEWs() public payable {
         require(!isSalePaused, "Cannot buy, sale is paused");
         require(!hasSaleEnded, "Sale ended");
         require(hasSaleStarted, "Wait for the sale to start");
-        uint256 stewsForBNB = getSTEWsForBNB(noOfBNBs, msg.sender);
+        uint256 stewsForBNB = getSTEWsForBNB(msg.value, msg.sender);
         uint256 numSTEWsCallerGets = soldStewTokens + stewsForBNB;
-        // THIS ADDRESES THE SCENARIO OF SAY, STEW_TOKENS_FOR_SALE = 147000,
-        // soldStewTokens = 146900, call to buySTEWs(150), here the caller gets,
-        // 100 STEWs out of 150 STEWs
-        if (numSTEWsCallerGets > STEW_TOKENS_FOR_SALE) {
-            numSTEWsCallerGets = STEW_TOKENS_FOR_SALE - soldStewTokens;
-            // It implies that all STEWs are sold out, thus set hasSaleEnded to true
+        require(
+            numSTEWsCallerGets <= STEW_TOKENS_FOR_SALE,
+            "Buying exceeds available STEWs"
+        );
+        soldStewTokens += stewsForBNB;
+        if (soldStewTokens == STEW_TOKENS_FOR_SALE) {
             hasSaleEnded = true;
-        } else {
-            numSTEWsCallerGets = stewsForBNB;
         }
         require(
-            BNBContract.balanceOf(msg.sender) >= noOfBNBs,
-            "Insufficient BNB balance"
-        );
-        soldStewTokens += numSTEWsCallerGets;
-        require(
-            STEWContract.transfer(msg.sender, numSTEWsCallerGets),
+            STEWContract.transfer(msg.sender, stewsForBNB),
             "STEW transfer failed"
-        );
-        require(
-            BNBContract.transferFrom(msg.sender, address(this), noOfBNBs),
-            "BNB transfer failed"
         );
     }
 
     /**
-     * @dev To move BNB tokens from `this contract` to `owner`
+     * @dev To transfer all BNBs from `this contract` to `owner`
      *
      * Requirements:
      * - invocation can be done, only by the contract owner.
      * - BNB token transfer from `this contract` to `msg.sender` must succeed.
      */
-    function transferBNBs() public onlyOwner {
-        uint256 contractBNBBal = BNBContract.balanceOf(address(this));
+    function withdrawBNBs() public onlyOwner {
         require(
-            BNBContract.transfer(msg.sender, contractBNBBal),
-            "transferBNBs failed"
+            payable(msg.sender).send(address(this).balance),
+            "Withdraw BNB failed"
         );
     }
 
@@ -772,7 +713,7 @@ contract SaleBNBSTEW is Ownable {
         returns (uint256)
     {
         if (isPreSale) {
-            require(noOfBNBs >= 1, "1 BNB minimum criteria fails");
+            require(noOfBNBs >= 1e18, "1 BNB minimum criteria fails");
             require(isAddressWhiteListed[caller], "Caller is not white listed");
             return noOfBNBs * STEW_TOKENS_PRE_SALE_PER_BNB;
         }

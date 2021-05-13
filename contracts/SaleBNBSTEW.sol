@@ -75,6 +75,26 @@ contract SaleBNBSTEW is Ownable {
     }
 
     /**
+     * @dev Starts sale.
+     *
+     * Requirements:
+     * - invocation can be done, only by the contract owner.
+     */
+    function startSale() public onlyOwner {
+        hasSaleStarted = true;
+    }
+
+    /**
+     * @dev Ends sale.
+     *
+     * Requirements:
+     * - invocation can be done, only by the contract owner.
+     */
+    function endSale() public onlyOwner {
+        hasSaleStarted = false;
+    }
+
+    /**
      * @dev To unpause a sale after the attack risks has been addressed.
      *
      * Emits an {SaleUnPaused} event.
@@ -98,7 +118,6 @@ contract SaleBNBSTEW is Ownable {
         public
         onlyOwner
     {
-        require(!hasSaleStarted, "Can't add whitelist sale started");
         for (uint256 i = 0; i < whiteListAddresses.length; i++) {
             require(
                 whiteListAddresses[i] != address(0),
@@ -106,66 +125,51 @@ contract SaleBNBSTEW is Ownable {
             );
             isAddressWhiteListed[whiteListAddresses[i]] = true;
         }
-        hasSaleStarted = true;
     }
 
     /**
      * @dev Moves `STEW` tokens from `this contract` to `caller{msg.sender}` &
-     * `BNB` tokens from `caller{msg.sender}` to `this contract`.
-     * `requireBNBs`: Number of BNBs required to buy STEWs
+     * `BNB` from `caller{msg.sender}` to `this contract`.
      * During PreSale, trying to buy STEWs less than 15 results in a revert.
      *
      * Requirements:
      * - `isSalePaused` must be false.
      * - already sold STEW tokens + STEW tokens to buy < `STEW_TOKENS_FOR_SALE`.
-     * - BNB token balance of `msg.sender` must be greater than `requireBNBs`.
-     * - in case of pre-sale only white list address can buy STEW.
+     * - in case of pre-sale only white list addresses can buy STEW.
      * - STEW token transfer from `this contract` to `msg.sender` must succeed.
-     * - BNB token transfer from `msg.sender` to `this contract` must succeed.
+     * - BNB transfer from `msg.sender` to `this contract` must succeed.
      */
-    function buySTEWs(uint256 noOfBNBs) public {
+    function buySTEWs() public payable {
         require(!isSalePaused, "Cannot buy, sale is paused");
         require(!hasSaleEnded, "Sale ended");
         require(hasSaleStarted, "Wait for the sale to start");
-        uint256 stewsForBNB = getSTEWsForBNB(noOfBNBs, msg.sender);
+        uint256 stewsForBNB = getSTEWsForBNB(msg.value, msg.sender);
         uint256 numSTEWsCallerGets = soldStewTokens + stewsForBNB;
-        // THIS ADDRESES THE SCENARIO OF SAY, STEW_TOKENS_FOR_SALE = 147000,
-        // soldStewTokens = 146900, call to buySTEWs(150), here the caller gets,
-        // 100 STEWs out of 150 STEWs
-        if (numSTEWsCallerGets > STEW_TOKENS_FOR_SALE) {
-            numSTEWsCallerGets = STEW_TOKENS_FOR_SALE - soldStewTokens;
-            // It implies that all STEWs are sold out, thus set hasSaleEnded to true
+        require(
+            numSTEWsCallerGets <= STEW_TOKENS_FOR_SALE,
+            "Buying exceeds available STEWs"
+        );
+        soldStewTokens += stewsForBNB;
+        if (soldStewTokens == STEW_TOKENS_FOR_SALE) {
             hasSaleEnded = true;
-        } else {
-            numSTEWsCallerGets = stewsForBNB;
         }
         require(
-            BNBContract.balanceOf(msg.sender) >= noOfBNBs,
-            "Insufficient BNB balance"
-        );
-        soldStewTokens += numSTEWsCallerGets;
-        require(
-            STEWContract.transfer(msg.sender, numSTEWsCallerGets),
+            STEWContract.transfer(msg.sender, stewsForBNB),
             "STEW transfer failed"
-        );
-        require(
-            BNBContract.transferFrom(msg.sender, address(this), noOfBNBs),
-            "BNB transfer failed"
         );
     }
 
     /**
-     * @dev To move BNB tokens from `this contract` to `owner`
+     * @dev To transfer all BNBs from `this contract` to `owner`
      *
      * Requirements:
      * - invocation can be done, only by the contract owner.
      * - BNB token transfer from `this contract` to `msg.sender` must succeed.
      */
-    function transferBNBs() public onlyOwner {
-        uint256 contractBNBBal = BNBContract.balanceOf(address(this));
+    function withdrawBNBs() public onlyOwner {
         require(
-            BNBContract.transfer(msg.sender, contractBNBBal),
-            "transferBNBs failed"
+            payable(msg.sender).send(address(this).balance),
+            "Withdraw BNB failed"
         );
     }
 
@@ -196,7 +200,7 @@ contract SaleBNBSTEW is Ownable {
         returns (uint256)
     {
         if (isPreSale) {
-            require(noOfBNBs >= 1, "1 BNB minimum criteria fails");
+            require(noOfBNBs >= 1e18, "1 BNB minimum criteria fails");
             require(isAddressWhiteListed[caller], "Caller is not white listed");
             return noOfBNBs * STEW_TOKENS_PRE_SALE_PER_BNB;
         }
