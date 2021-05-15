@@ -520,8 +520,6 @@ pragma solidity ^0.8.0;
 /// @title SaleBNBSTEW
 contract SaleBNBSTEW is Ownable {
     // solhint-disable-next-line var-name-mixedcase
-    ERC20 public BNBContract;
-    // solhint-disable-next-line var-name-mixedcase
     ERC20 public STEWContract;
 
     mapping(address => bool) public isAddressWhiteListed;
@@ -540,15 +538,13 @@ contract SaleBNBSTEW is Ownable {
     event SaleUnPaused();
 
     /**
-     * @dev Sets the values for {BNBContract} and {STEWContract}
+     * @dev Sets the values {STEWContract}
      *
      * All two of these values are immutable: they can only be set once during
      * construction
      */
-    constructor(address bnbContract, address stewContract) public {
-        require(isContract(bnbContract), "BNB address can't be EOA");
+    constructor(address stewContract) public {
         require(isContract(stewContract), "STEW address can't be EOA");
-        BNBContract = ERC20(bnbContract);
         STEWContract = ERC20(stewContract);
     }
 
