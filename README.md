@@ -8,17 +8,15 @@ List of smart contracts for Basketcoin
 
 - In the file explorer, on the left-hand side, `contracts` -> right click -> `New File` -> `STEW.sol` -> Paste `/flattened_contracts/STEW.sol` -> `Ctrl+s`
 
-Do the above steps for `BNB.sol` & `SaleSTEWBNB.sol`
+Do the above steps for `SaleSTEWBNB.sol`
 
 - Compile the contracts (`Blue Button`)
 
 - From the left-panel, click `Deploy & run transactions`
 
-- For BNB.sol -> Deploy -> specify the initialSupply value, you can use `0x33b2e3c9fd0804000000000` => 1 Billion BNB Coins
-
 - For STEW.sol -> Deploy -> specify the fixedSupply value, you can use `0x2c781f708c50a0000000` => 210000 STEW Coins
 
-- For SaleBNBSTEW.sol -> Deploy -> specify the BNB & STEW contract addresses
+- For SaleBNBSTEW.sol -> Deploy -> specify the STEW contract addresses
 
 # For Mainnet
 
