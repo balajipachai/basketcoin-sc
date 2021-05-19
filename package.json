@@ -7,6 +7,7 @@
     "clean": "rm -rf .config .npm .node-gyp node_modules && npm install",
     "cleanSol": "rm -rf build/contracts",
     "compile": "clear && truffle compile && npm run lint",
+    "coverage": "truffle run coverage",
     "lint": "solhint \"contracts/**/*.sol\"",
     "migrate": "clear && truffle migrate",
     "migrateAll": "clear && truffle migrate --reset",
@@ -16,6 +17,7 @@
   "author": "Balaji Shetty Pachai <balaji.pachai08@gmail.com>",
   "dependencies": {
     "@truffle/hdwallet-provider": "^1.4.0",
+    "bignumber.js": "^9.0.1",
     "fix": "0.0.6",
     "openzeppelin-solidity": "^4.1.0",
     "solhint": "^3.3.4",

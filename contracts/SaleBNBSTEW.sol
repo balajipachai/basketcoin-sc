@@ -71,6 +71,18 @@ contract SaleBNBSTEW is Ownable {
     }
 
     /**
+     * @dev To unpause a sale after the attack risks has been addressed.
+     *
+     * Emits an {SaleUnPaused} event.
+     * Requirements:
+     * - invocation can be done, only by the contract owner.
+     */
+    function unPauseSale() public onlyOwner {
+        isSalePaused = false;
+        emit SaleUnPaused();
+    }
+
+    /**
      * @dev Starts sale.
      *
      * Requirements:
@@ -87,19 +99,7 @@ contract SaleBNBSTEW is Ownable {
      * - invocation can be done, only by the contract owner.
      */
     function endSale() public onlyOwner {
-        hasSaleStarted = false;
-    }
-
-    /**
-     * @dev To unpause a sale after the attack risks has been addressed.
-     *
-     * Emits an {SaleUnPaused} event.
-     * Requirements:
-     * - invocation can be done, only by the contract owner.
-     */
-    function unPauseSale() public onlyOwner {
-        isSalePaused = false;
-        emit SaleUnPaused();
+        hasSaleEnded = true;
     }
 
     /**
@@ -130,6 +130,8 @@ contract SaleBNBSTEW is Ownable {
      *
      * Requirements:
      * - `isSalePaused` must be false.
+     * - `hasSaleEnded` must be fale.
+     * - `hasSaleStarted` must be true.
      * - already sold STEW tokens + STEW tokens to buy < `STEW_TOKENS_FOR_SALE`.
      * - in case of pre-sale only white list addresses can buy STEW.
      * - STEW token transfer from `this contract` to `msg.sender` must succeed.
@@ -139,14 +141,17 @@ contract SaleBNBSTEW is Ownable {
         require(!isSalePaused, "Cannot buy, sale is paused");
         require(!hasSaleEnded, "Sale ended");
         require(hasSaleStarted, "Wait for the sale to start");
-        uint256 stewsForBNB = getSTEWsForBNB(msg.value, msg.sender);
+        uint256 stewTokenDecimals = STEWContract.decimals();
+        uint256 divisionFactor = (10**stewTokenDecimals);
+        uint256 stewsForBNB =
+            getSTEWsForBNB(msg.value, msg.sender, divisionFactor);
         uint256 numSTEWsCallerGets = soldStewTokens + stewsForBNB;
         require(
-            numSTEWsCallerGets <= STEW_TOKENS_FOR_SALE,
+            numSTEWsCallerGets <= STEW_TOKENS_FOR_SALE * divisionFactor,
             "Buying exceeds available STEWs"
         );
         soldStewTokens += stewsForBNB;
-        if (soldStewTokens == STEW_TOKENS_FOR_SALE) {
+        if (soldStewTokens == (STEW_TOKENS_FOR_SALE * divisionFactor)) {
             hasSaleEnded = true;
         }
         require(
@@ -190,13 +195,13 @@ contract SaleBNBSTEW is Ownable {
      * Requirements:
      * - during presale, the caller must be a white listed address
      */
-    function getSTEWsForBNB(uint256 noOfBNBs, address caller)
-        internal
-        view
-        returns (uint256)
-    {
+    function getSTEWsForBNB(
+        uint256 noOfBNBs,
+        address caller,
+        uint256 divisionFactor
+    ) internal view returns (uint256) {
         if (isPreSale) {
-            require(noOfBNBs >= 1e18, "1 BNB minimum criteria fails");
+            require(noOfBNBs >= divisionFactor, "1 BNB minimum criteria fails");
             require(isAddressWhiteListed[caller], "Caller is not white listed");
             return noOfBNBs * STEW_TOKENS_PRE_SALE_PER_BNB;
         }

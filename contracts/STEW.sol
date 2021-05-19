@@ -29,28 +29,6 @@ contract STEW is ERC20, Ownable {
 
     fallback() external payable {}
 
-    /** @dev Creates `amount` tokens and assigns them to `account`, increasing
-     * the total supply.
-     *
-     * Emits a {Transfer} event with `from` set to the zero address.
-     *
-     * Requirements:
-     *
-     * - `account` cannot be the zero address.
-     */
-    function mint(address account, uint256 amount) public onlyOwner {
-        uint256 tokensThatCanBeMinted = totalSupply() + amount;
-        // THIS ADDRESES THE SCENARIO OF SAY, MAX_STEWS = 210000,
-        // totalSupply = 299990, call to mint(10), here the caller gets,
-        // 10 STEWs out of 15 STEWs
-        if (tokensThatCanBeMinted > 210000) {
-            tokensThatCanBeMinted = 210000 - totalSupply();
-        } else {
-            tokensThatCanBeMinted = amount;
-        }
-        _mint(account, tokensThatCanBeMinted);
-    }
-
     /**
      * @dev To update number of decimals for a token
      *

@@ -5,6 +5,9 @@ module.exports = {
     copyPackages: ['openzeppelin-solidity'],
     skipFiles: [
         'Migrations.sol',
-    ]
+    ],
+    providerOptions: {
+        default_balance_ether: '10000000000000000000000000',
+    },
 };
 
