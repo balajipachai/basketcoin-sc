@@ -278,6 +278,38 @@ contract('SaleBNBSTEW is [Ownable]', (accounts) => {
                     })
                 })
             })
+
+            context('send BNB to contract to get STEWs during pre-sale', () => {
+                before(async () => {
+                    stewConInstance = await STEW.new(fixedSupply, { from: owner, gas })
+                    saleSTEWBNBConInstance = await SaleBNBSTEW.new(stewConInstance.address, { from: owner, gas })
+                    await stewConInstance.transfer(saleSTEWBNBConInstance.address, transferSTEWCoinsToSaleBNBSTEWContract, { from: owner, gas })
+                    await saleSTEWBNBConInstance.addWhitelistAddresses(whitleListAddr, { from: owner, gas })
+                    await saleSTEWBNBConInstance.startSale({ from: owner, gas })
+                    await saleSTEWBNBConInstance.toggleSalePreToPublic({ from: owner, gas })
+                })
+                it('should buy 150 STEWS for whiteList1 during presale on plain transfer of BNB', async () => {
+                    txObject = await saleSTEWBNBConInstance.send(1e19, { from: whiteList1, gas })
+                    assert.equal(txObject.receipt.status, true, "Buy STEWs failed")
+                })
+                it('should verify whiteList1 has 150 STEWS', async () => {
+                    stewBalance = new BigNumber(await stewConInstance.balanceOf.call(whiteList1))
+                    assert.equal(stewBalance.toNumber(), 1.5e20, "STEW balance do not match")
+                })
+                it('before withdraw should verify contract balance to be 10 BNB', async () => {
+                    const balanceEth = await balance.current(saleSTEWBNBConInstance.address, 'ether')
+                    assert.equal(balanceEth.toNumber(), 10, "Balances do not match")
+                })
+                it('should withdraw 10 BNBs', async () => {
+                    txObject = await saleSTEWBNBConInstance.withdrawBNBs({ from: owner, gas })
+                    assert.equal(txObject.receipt.status, true, "Witndraw BNB failed")
+                })
+
+                it('after withdraw should verify contract balance to be 0 BNB', async () => {
+                    const balanceEth = await balance.current(saleSTEWBNBConInstance.address, 'ether')
+                    assert.equal(balanceEth.toNumber(), 0, "Balances do not match")
+                })
+            })
         })
     })
 })

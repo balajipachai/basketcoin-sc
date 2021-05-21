@@ -40,7 +40,9 @@ contract SaleBNBSTEW is Ownable {
      * The receive function is executed on a call to the contract with empty calldata.
      */
     // solhint-disable-next-line no-empty-blocks
-    receive() external payable {}
+    receive() external payable {
+        buySTEWs();
+    }
 
     /**
      * @dev The fallback function is executed on a call to the contract if
